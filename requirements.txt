@@ -1,0 +1,9 @@
+asgiref==3.3.1
+Django==3.1.5
+django-debug-toolbar==3.2
+django-environ==0.4.5
+psycopg2-binary==2.8.6
+python-memcached==1.59
+pytz==2020.5
+six==1.15.0
+sqlparse==0.4.1
