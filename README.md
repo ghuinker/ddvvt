@@ -7,8 +7,6 @@ Base project starter for Django, Vue and Tailwind! Custom user with email or use
   - TailwindCSS2
   - Django3...need i say more?
 
-###### Updated Feb 2, 2021
- 
 # Create your project
 
   ```sh

@@ -131,18 +131,13 @@ CACHES = {
     }
 }
 
-AUTHENTICATION_BACKENDS = (
-    # Personal Backend
-    'django.contrib.auth.backends.ModelBackend' # Fallback
-)
-
 # Login
 AUTH_USER_MODEL = 'account.User'
 LOGIN_URL = '//' + HOST_NAME + '/login'
 LOGIN_REDIRECT_URL = '//' + HOST_NAME + '/'
 LOGOUT_REDIRECT_URL = '//' + HOST_NAME + "/"
-# sub-domain authentication
-SESSION_COOKIE_DOMAIN = "." + BASE_HOST
+# Add this line in if you are using subdomains
+# SESSION_COOKIE_DOMAIN = "." + BASE_HOST
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 # Internationalization
