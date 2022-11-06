@@ -1,3 +1,4 @@
+const path = require('path');
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
@@ -5,6 +6,9 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   plugins: [vue()],
   base: '/static/',
+  server: {
+    port: 3000
+  },
   resolve: {
     alias: [
       { find: '@', replacement: path.resolve('./src/app/') }
@@ -13,7 +17,10 @@ export default defineConfig({
   build: {
     manifest: true,
     rollupOptions: {
-      'app': path.resolve('src/app/app.entry.js'),
+      input : {
+        'app': path.resolve('src/app/app.entry.js'),
+        'style': path.resolve('src/app/style.js')
+      }
     }
   }
 })

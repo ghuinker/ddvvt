@@ -36,7 +36,9 @@ BASE_HOST = HOST_NAME.replace(':8000', '')
 
 ROOT_URLCONF = '{{project_name}}.urls'
 
-AUTH_USER_MODEL = '{{ project_name }}.account.User'
+AUTH_USER_MODEL = '{{ project_name }}_account.User'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Allowed clients
 ALLOWED_HOSTS = [
@@ -66,7 +68,8 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'rest_framework',
-    'django_filters'
+    'django_filters',
+    'django_vite'
 ]
 
 MIDDLEWARE = [
@@ -146,6 +149,10 @@ LOGIN_URL = '//' + HOST_NAME + '/login'
 LOGIN_REDIRECT_URL = '//' + HOST_NAME + '/'
 LOGOUT_REDIRECT_URL = '//' + HOST_NAME + "/"
 
+# https://docs.djangoproject.com/en/3.2/ref/middleware/#http-strict-transport-security
+# SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_SECONDS = 300  # Change to 31536000 (1 year)
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -159,6 +166,10 @@ USE_L10N = True
 
 USE_TZ = True
 
+
+# DJANGO VITE
+DJANGO_VITE_ASSETS_PATH = os.path.join(BASE_DIR, 'dist')
+DJANGO_VITE_DEV_MODE = env('VITE_DEV_MODE')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/{{ docs_version }}/howto/static-files/

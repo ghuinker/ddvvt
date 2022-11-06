@@ -1,10 +1,8 @@
-import { createApp } from 'vue';
-import HelloThere from './components/HelloThere'
+import 'vite/modulepreload-polyfill'
 
-import './css/style.css'
+import { createApp } from 'vue'
+import { RouterView } from 'vue-router'
+import router from './router.js'
+import useAxios from './axios.js'
 
-const app = createApp({})
-
-app.component('hello-there', HelloThere)
-
-app.mount('#app')
+createApp(RouterView).use(router).provide('axios', useAxios({})).mount('#app')

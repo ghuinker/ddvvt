@@ -7,13 +7,7 @@
     </div>
 </template>
 
-<script>
-    export default {
-        name: "HelloThere",
-        data(){
-            return {
-                greetings: false
-            }
-        }
-    }
+<script setup>
+import { ref } from 'vue'
+const greetings = ref(false)
 </script>
