@@ -1,0 +1,133 @@
+version: '3.8'
+services:
+  traefik:
+    image: traefik:2.5
+    command:
+      # Try to enable this if something isn't working.
+      # Chances are, Traefik will tell you why.
+      # Be careful in production as it exposes the traffic you might not want to expose.
+      #- --log.level=DEBUG
+
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --entrypoints.websecure.address=:443
+
+      - --providers.docker.swarmMode=true
+      - --providers.docker.exposedbydefault=false
+
+      # LetsEncrypt Staging Server - uncomment when testing
+      # - --certificatesResolvers.letsencrypt.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.letsencrypt.acme.email={{ your_email }}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+  web:
+    build: .
+    command: gunicorn {{ project_name }}.config.wsgi --bind 0.0.0.0:5000 --workers 3
+    image: ghcr.io/{{ project_container_url }}
+    env_file: .env
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      restart_policy:
+        condition: on-failure
+      update_config:
+        # parallelism = the number of containers to update at a time
+        parallelism: 1
+        # start-first = new task is started first, and the running tasks briefly overlap
+        order: stop-first
+        # What to do if an update fails
+        failure_action: rollback
+        # time to wait between updating a group of containers
+        # delay: 60s
+      rollback_config:
+        # If parallelism set to 0, all containers rollback simultaneously
+        parallelism: 0
+        # stop-first = old task is stopped before starting new one
+        order: stop-first
+      labels:
+        - traefik.enable=true
+        - traefik.docker.lbswarm=true
+        - traefik.http.services.backend.loadbalancer.server.port=5000
+        - traefik.http.routers.backend.rule=Host(`{{ example.com }}`)
+        - traefik.http.routers.backend.entrypoints=websecure
+        - traefik.http.routers.backend.tls=true
+        - traefik.http.routers.backend.tls.certresolver=letsencrypt
+
+        - traefik.http.middlewares.retry-backend.retry.attempts=2
+        - traefik.http.routers.backend.middlewares=retry-backend@docker
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:5000/ping/health']
+      interval: 15s
+      timeout: 10s
+      retries: 6
+      start_period: 10s
+    volumes:
+     - static_volume:/app/static
+     - logs:/app/logs
+    depends_on:
+      - cache
+  cache:
+    image: memcached:1.6
+    ports:
+      - "11211:11211"
+    entrypoint:
+      - memcached
+      - -m 6
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+  nginx:  # nginx to serve static files
+    image: ghcr.io/{{ nginx_container_url }}
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.nginx
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      restart_policy:
+        condition: on-failure
+      update_config:
+        # parallelism = the number of containers to update at a time
+        parallelism: 1
+        # start-first = new task is started first, and the running tasks briefly overlap
+        order: stop-first
+        # What to do if an update fails
+        failure_action: rollback
+        # time to wait between updating a group of containers
+        delay: 5s
+      labels:
+        - traefik.enable=true
+        - traefik.http.services.static.loadbalancer.server.port=80
+        - traefik.http.routers.static.rule=Host(`{{ example.com }}`) && PathPrefix(`/static`, `/favicon.ico`)
+        - traefik.http.routers.static.entrypoints=websecure
+        - traefik.http.routers.static.tls=true
+        - traefik.http.routers.static.tls.certresolver=letsencrypt
+    volumes:
+      - static_volume:/static
+    depends_on:
+      - web
+
+volumes:
+  static_volume:
+  logs:

@@ -8,12 +8,14 @@ from .validators import (username_not_in_reserved_usernames,
                          validate_no_at_symbol,
                          validate_username_at_least_4_characters)
 
+
 class CustomUserManager(UserManager):
     def get_by_natural_key(self, username):
         if '@' in username:
             return self.get(email=username)
         else:
             return self.get(username=username)
+
 
 class User(AbstractBaseUser, PermissionsMixin):
     username_validator = UnicodeUsernameValidator()

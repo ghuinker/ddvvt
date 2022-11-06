@@ -16,7 +16,7 @@ import os
 import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
 env = environ.Env(DEBUG=(bool, False))
 env.read_env(os.path.join(BASE_DIR, '.env'))
@@ -33,6 +33,10 @@ DEBUG = env('DEBUG')
 
 HOST_NAME = env('HOST_NAME')
 BASE_HOST = HOST_NAME.replace(':8000', '')
+
+ROOT_URLCONF = '{{project_name}}.urls'
+
+AUTH_USER_MODEL = '{{ project_name }}.account.User'
 
 # Allowed clients
 ALLOWED_HOSTS = [
@@ -52,17 +56,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
 
-    'account',
-    'app'
+    '{{ project_name }}.account',
+    '{{ project_name }}.core',
+    '{{ project_name }}',  # Prevent templates from reloading app
+
+    # Third Party
+    'allauth',
+    'allauth.account',
+    'rest_framework',
+    'django_filters'
 ]
-
-if DEBUG:
-    INSTALLED_APPS += ['debug_toolbar']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    '{{project_name}}.core.middleware.HealthCheckMiddleware',  # Must come before common
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -70,22 +80,18 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 if DEBUG:
-    MIDDLEWARE += ['app.middleware.DebugMiddleware',
-                   'debug_toolbar.middleware.DebugToolbarMiddleware', ]
+    MIDDLEWARE += ['{{project_name}}.core.middleware.DebugMiddleware']
 
-ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            'templates'
-        ],
+        'DIRS': [os.path.join(BASE_DIR, 'src', '{{ project_name }}', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.debug',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -93,7 +99,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = '{{project_name}}.config.wsgi.application'
 
 
 # Database
@@ -123,22 +129,22 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Cache
-# https://docs.djangoproject.com/en/3.1/topics/cache/#local-memory-caching
+# https://docs.djangoproject.com/en/4.1/topics/cache/#local-memory-caching
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
         'LOCATION': '127.0.0.1:11211',
     }
 }
 
-# Login
-AUTH_USER_MODEL = 'account.User'
-LOGIN_URL = '//' + HOST_NAME + '/login'
-LOGIN_REDIRECT_URL = '//' + HOST_NAME + '/'
-LOGOUT_REDIRECT_URL = '//' + HOST_NAME + "/"
 # Add this line in if you are using subdomains
 # SESSION_COOKIE_DOMAIN = "." + BASE_HOST
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_COOKIE_AGE = 31 * 24 * 60 * 60  # One Month
+
+LOGIN_URL = '//' + HOST_NAME + '/login'
+LOGIN_REDIRECT_URL = '//' + HOST_NAME + '/'
+LOGOUT_REDIRECT_URL = '//' + HOST_NAME + "/"
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -155,22 +161,23 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
-STATIC_ROOT = 'static'
-STATIC_URL = '/static/'
+# https://docs.djangoproject.com/en/{{ docs_version }}/howto/static-files/
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'dist')
+    os.path.join(BASE_DIR, 'dist'),
+    os.path.join(BASE_DIR, 'static-site'),
 ]
 
-# Media
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = '/static/'
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-# ManifestStaticFilesStorage is recommended in production, to prevent outdated
-# JavaScript / CSS assets being served from cache.
-# See https://docs.djangoproject.com/en/{{ docs_version }}/ref/contrib/staticfiles/#manifeststaticfilesstorage
-if not DEBUG:
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+# Rest Framework
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer',),
+}
 
 # TODO: Replace for sentry
 if not DEBUG:

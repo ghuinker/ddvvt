@@ -1,7 +1,6 @@
 module.exports = {
   content: [
-    `./src/**/*.vue`,
-    `./templates/**/*.html`
+    `./src/**/*.{vue,js,css,html}`
   ],
   safelist: []
 }
