@@ -36,7 +36,7 @@ BASE_HOST = HOST_NAME.replace(':8000', '')
 
 ROOT_URLCONF = '{{project_name}}.urls'
 
-AUTH_USER_MODEL = '{{ project_name }}_account.User'
+AUTH_USER_MODEL = 'accounts.User'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
@@ -44,10 +44,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 ALLOWED_HOSTS = [
     '.' + BASE_HOST,  # SubDomains
     BASE_HOST  # Site
-]
-# DebugBar Ip Address
-INTERNAL_IPS = [
-    '127.0.0.1',
 ]
 
 # Application definition
@@ -60,13 +56,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
 
-    '{{ project_name }}.account',
+    '{{ project_name }}.accounts',
     '{{ project_name }}.core',
     '{{ project_name }}',  # Prevent templates from reloading app
 
     # Third Party
     'allauth',
     'allauth.account',
+    'allauth.socialaccount',
     'rest_framework',
     'django_filters',
     'django_vite'
@@ -148,6 +145,27 @@ SESSION_COOKIE_AGE = 31 * 24 * 60 * 60  # One Month
 LOGIN_URL = '//' + HOST_NAME + '/login'
 LOGIN_REDIRECT_URL = '//' + HOST_NAME + '/'
 LOGOUT_REDIRECT_URL = '//' + HOST_NAME + "/"
+
+SITE_ID = 1
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http' if DEBUG else 'https'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_FORMS = {'signup': '{{project_name}}.accounts.forms.CustomSignupForm'}
+
+# Django Email
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+EMAIL_BACKEND = env('EMAIL_BACKEND')
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = 587
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_FILE_PATH = env('EMAIL_FILE_PATH')
+EMAIL_USE_TLS = True
 
 # https://docs.djangoproject.com/en/3.2/ref/middleware/#http-strict-transport-security
 # SECURE_HSTS_PRELOAD = True

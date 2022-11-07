@@ -3,8 +3,8 @@
 import django.contrib.auth.validators
 from django.db import migrations, models
 import django.utils.timezone
-import {{project_name}}.account.models
-import {{project_name}}.account.validators
+import {{project_name}}.accounts.models
+import {{project_name}}.accounts.validators
 
 
 class Migration(migrations.Migration):
@@ -54,9 +54,9 @@ class Migration(migrations.Migration):
                         unique=True,
                         validators=[
                             django.contrib.auth.validators.UnicodeUsernameValidator(),
-                            myproject.account.validators.validate_no_at_symbol,
-                            myproject.account.validators.username_not_in_reserved_usernames,
-                            myproject.account.validators.validate_username_at_least_4_characters,
+                            {{ project_name }}.accounts.validators.validate_no_at_symbol,
+                            {{ project_name }}.accounts.validators.username_not_in_reserved_usernames,
+                            {{ project_name }}.accounts.validators.validate_username_at_least_4_characters,
                         ],
                         verbose_name='username',
                     ),
@@ -122,7 +122,7 @@ class Migration(migrations.Migration):
                 'abstract': False,
             },
             managers=[
-                ('objects', myproject.account.models.CustomUserManager()),
+                ('objects', {{ project_name }}.accounts.models.CustomUserManager()),
             ],
         ),
     ]

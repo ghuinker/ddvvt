@@ -1,4 +1,4 @@
-import { ref, inject, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import useAxios from '@/axios.js'
 
 export function urlToApiUrl(url, addApiPrepend = false) {
@@ -18,6 +18,18 @@ export function urlToApiUrl(url, addApiPrepend = false) {
     const connectingSlash = pathname.endsWith('/') ? '' : '/'
     returnUrl = pathname + connectingSlash + url
   }
+  // Starts with slash -> append to /username or /username/cp
+  else {
+    const pathsplt = pathname.split('/').filter(x => !!x) // Remove empty
+    let prepend = ''
+    if (pathsplt.length > 0) {
+      prepend = '/' + pathsplt[0] // username
+    }
+    if (pathsplt.length > 1) {
+      prepend += pathsplt[1] == 'cp' ? '/cp' : ''
+    }
+    returnUrl = prepend + url
+  }
   // Append slash always
   returnUrl += returnUrl.endsWith('/') ? '' : '/'
   if (addApiPrepend) returnUrl = '/api' + returnUrl
@@ -25,7 +37,6 @@ export function urlToApiUrl(url, addApiPrepend = false) {
 }
 
 function _getApi(url, { params = {}, enabled = true, initialData = null, requestOnMount = true }) {
-  const mitt = inject('mitt')
   const data = ref(initialData)
   const isLoading = ref(false)
   const response = ref(null)
