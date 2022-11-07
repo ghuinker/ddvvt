@@ -39,7 +39,7 @@ services:
   web:
     build: .
     command: gunicorn {{ project_name }}.config.wsgi --bind 0.0.0.0:5000 --workers 3
-    image: ghcr.io/{{ project_container_url }}
+    image: {{project_name}}_web
     env_file: .env
     deploy:
       replicas: 1
@@ -97,7 +97,7 @@ services:
       placement:
         constraints: [node.role == manager]
   nginx:  # nginx to serve static files
-    image: ghcr.io/{{ nginx_container_url }}
+    image: {{project_name}}_nginx
     build:
       context: .
       dockerfile: ./docker/Dockerfile.nginx

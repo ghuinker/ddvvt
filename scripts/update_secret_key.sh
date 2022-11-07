@@ -9,4 +9,4 @@ if [ ! -f "$FILE" ]; then
 fi
 
 secret_key=$(python3 -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())")
-perl -pi -e "s/SECRET_KEY=/SECRET_KEY=$secret_key/g" $FILE
+sed -i '' "s/SECRET_KEY=/SECRET_KEY=$secret_key/g" $FILE
