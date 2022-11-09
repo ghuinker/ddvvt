@@ -1,5 +1,5 @@
 DOCKERCOMPOSETEST=docker-compose -f docker/docker-compose.test.yml
-PROJECT_NAME=
+PROJECT_NAME={{project_name}}
 
 devup:
 	docker-compose up
@@ -25,8 +25,7 @@ build:
 
 setup-project:
 	test $(PROJECT_NAME)
-	sed -i '' "s/{{project_name}}/${PROJECT_NAME}/g" ./DockerFile
-	sed -i '' "s/{{project_name}}/${PROJECT_NAME}/g" ./docker-compose.yml
+	./scripts/update_projectname.sh ${PROJECT_NAME}
 	cp .env.example .env
 	python3 -m venv venv
 	python3 -m pip install --upgrade pip

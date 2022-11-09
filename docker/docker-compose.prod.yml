@@ -38,7 +38,7 @@ services:
         constraints: [node.role == manager]
   web:
     build: .
-    command: gunicorn {{ project_name }}.config.wsgi --bind 0.0.0.0:5000 --workers 3
+    command: gunicorn {{project_name}}.config.wsgi --bind 0.0.0.0:5000 --workers 3
     image: {{project_name}}_web
     env_file: .env
     deploy:
