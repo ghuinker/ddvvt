@@ -13,8 +13,8 @@ services:
     image: {{project_name}}_web
     environment:
       DJANGO_SETTINGS_MODULE: {{project_name}}.config.settings_test
-    build: .
-    env_file: .env
+    build: ../
+    env_file: ../.env
     expose:
       - 5000
     volumes:
@@ -35,7 +35,8 @@ services:
       - memcached
       - -m 6
   nginx:  # nginx to serve static files
-    image: {{project_name}}_web
+    image: {{project_name}}_nginx
+    build: nginx/
     volumes:
       - static_volume:/static
     labels:

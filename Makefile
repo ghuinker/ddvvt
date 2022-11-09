@@ -2,20 +2,19 @@ DOCKERCOMPOSETEST=docker-compose -f docker/docker-compose.test.yml
 PROJECT_NAME={{project_name}}
 
 devup:
-	docker-compose up
+	docker-compose up -d
 
 devupb:
-	docker-compose up --build
+	docker-compose up --build -d
 
 devdown:
 	docker-compose down --remove-orphans
 
 testup:
-	${DOCKERCOMPOSETEST} up
+	${DOCKERCOMPOSETEST} up -d
 
 testupb:
-	${DOCKERCOMPOSETEST} down --remove-orphans -v
-	${DOCKERCOMPOSETEST} up --build
+	${DOCKERCOMPOSETEST} up --build -d
 
 testdown:
 	${DOCKERCOMPOSETEST} down --remove-orphans

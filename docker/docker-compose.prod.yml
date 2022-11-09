@@ -1,3 +1,5 @@
+# This file is meant to be used with Docker Swarm for prod.
+# TODO: Instructions on how to setup
 version: '3.8'
 services:
   traefik:
