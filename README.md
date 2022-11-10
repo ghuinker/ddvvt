@@ -6,7 +6,7 @@ Base project starter for Django, Docker, Vue, Vite, and TailwindCss! Some extra 
 # Create your project
 
   ```sh
-$ django-admin.py startproject --template=https://github.com/ghuinker/django-vue-tailwind-skeleton/archive/main.zip --name=Makefile myproject
+django-admin startproject --template=https://github.com/ghuinker/django-vue-tailwind-skeleton/archive/main.zip --name=Makefile myproject
 ```
 
 Get coding!
