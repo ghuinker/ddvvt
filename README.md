@@ -1,17 +1,14 @@
-# Django Vue Tailwind Skeleton
+# Django Docker Vue Vite Tailwind Skeleton!
 
 
-Base project starter for Django, Vue and Tailwind! Custom user with email or username to login, reserved_usernames, and simple logging and debugging!
-
-  - Vue3
-  - TailwindCSS2
-  - Django3...need i say more?
+Base project starter for Django, Docker, Vue, Vite, and TailwindCss! Some extra opinionated auth, api, utils, debugging, and more!
   
 # Create your project
 
   ```sh
-$ django-admin.py startproject --template=https://github.com/ghuinker/django-vue-tailwind-skeleton/archive/master.zip --name=Makefile myproject
+$ django-admin.py startproject --template=https://github.com/ghuinker/django-vue-tailwind-skeleton/archive/main.zip --name=Makefile myproject
 ```
+
 Get coding!
 ```sh
 cd myproject
