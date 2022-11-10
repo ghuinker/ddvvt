@@ -1,0 +1,19 @@
+[tool.black]
+skip-string-normalization = true
+exclude = '''
+(
+ /(
+   docs
+   | node_modules
+   | build*.py
+   | media
+   | storage
+   | logs
+   | site-static
+   | static
+   | \.git
+   | \.npm
+  )/
+  | src/.*/migrations/.*\.py
+)
+'''

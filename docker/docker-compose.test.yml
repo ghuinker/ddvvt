@@ -1,0 +1,61 @@
+# Docker Test
+version: '3.8'
+services:
+  traefik:
+    image: traefik:2.5
+    ports:
+      - 8000:80
+    command: --providers.docker
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  web:
+    command: gunicorn {{project_name}}.config.wsgi --bind 0.0.0.0:5000 --workers 3
+    image: {{project_name}}_web
+    environment:
+      DJANGO_SETTINGS_MODULE: {{project_name}}.config.settings_test
+    build: ../
+    env_file: ../.env
+    expose:
+      - 5000
+    volumes:
+     - static_volume:/app/static
+     - media_volume:/app/media
+     - logs:/app/logs
+    depends_on:
+      - cache
+      - db
+      - traefik
+    labels: # new
+      - "traefik.http.routers.web.rule=Host(`localhost`)"
+  cache:
+    image: memcached:1.6
+    ports:
+      - "11211:11211"
+    entrypoint:
+      - memcached
+      - -m 6
+  nginx:  # nginx to serve static files
+    image: {{project_name}}_nginx
+    build: nginx/
+    volumes:
+      - static_volume:/static
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.static-http.rule=Host(`localhost`) && PathPrefix(`/static`, `/media`)"
+    depends_on:
+      - web
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER={{project_name}}_u
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB={{project_name}}_test
+
+
+volumes:
+  static_volume:
+  media_volume:
+  logs:
+  postgres_test_data:

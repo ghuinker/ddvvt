@@ -1,0 +1,35 @@
+# Docker Dev
+version: '3.7'
+services:
+  web:
+    command: python3 manage.py runserver 0.0.0.0:8000
+    image: {{project_name}}_web
+    build: .
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      - cache
+      - db
+    volumes:
+     - .:/app
+  cache:
+    image: memcached:1.6
+    ports:
+      - "11211:11211"
+    entrypoint:
+      - memcached
+      - -m 6
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER={{project_name}}_u
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB={{project_name}}
+
+
+volumes:
+  postgres_data:
+  logs:

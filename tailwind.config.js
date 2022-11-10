@@ -1,21 +1,15 @@
-const purge = require('./purge.config.js')
 const defaultTheme = require('tailwindcss/defaultTheme')
 
 module.exports = {
-  darkMode: false,
-  purge: {
-    content: purge.content,
-    options: {
-      safelist: purge.safelist
-    }
-  },
+  darkMode: 'media',
+  content: [`./src/**/*.{vue,js,css,html}`],
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter var', ...defaultTheme.fontFamily.sans],
-      },
-    },
+        sans: ['Inter var', ...defaultTheme.fontFamily.sans]
+      }
+    }
   },
   variants: {},
-  plugins: [],
+  plugins: []
 }
